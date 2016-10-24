@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This web.xml file is not required when using Servlet 3.0 container,
+     see implementation details http://jersey.java.net/nonav/documentation/latest/jax-rs.html -->
+<DBInstances>
+<DBInstance>
+<DBInstanceID>kunlun</DBInstanceID>
+<DBInstanceName>kunlun</DBInstanceName>
+<DBInstanceIP>10.11.1.81</DBInstanceIP>
+<DBInstancePORT>6688</DBInstancePORT>
+<DBInstanceDRV>com.kunlun.jdbc.Driver</DBInstanceDRV>
+<DBInstanceURL>jdbc:kunlun://10.11.1.81:6688/system</DBInstanceURL>
+<DBInstanceUSER>sysdba</DBInstanceUSER>
+<DBInstancePWD>SYSDBA</DBInstancePWD>
+</DBInstance>
+</DBInstances>
