@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.Dispatcher.OperateSql;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
-import com.Dispatcher.connsql;
 public class revokeAccountPrivilege {
 	public revokeAccountPrivilegeResponse response(String DBInstanceId,String AccountName,String DBName){
 				revokeAccountPrivilegeResponse planet=new revokeAccountPrivilegeResponse();

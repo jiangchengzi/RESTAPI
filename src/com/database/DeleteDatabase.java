@@ -12,7 +12,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
-import com.Dispatcher.connsql;
 public class DeleteDatabase {
 	public DeleteDatabaseResponse response(String DBInstanceId,String DBName)
 	{

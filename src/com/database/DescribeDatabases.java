@@ -5,8 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+
 import java.util.List;
 import java.util.Map;
 
@@ -17,11 +16,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import com.Account.Accounts;
-import com.Dispatcher.OperateSql;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
-import com.Dispatcher.connsql;
 
 	//import java.sql.Timestamp;
 

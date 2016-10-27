@@ -16,18 +16,15 @@ import com.Dispatcher.OperateScripts;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
 import com.Dispatcher.ReadOnlyDBInstanceIds;
-import com.Dispatcher.connsql;
 public class DescribeDBInstanceAttribute {
 	public DescribeDBInstanceAttributeResponse response(String DBInstanceId){
 		DescribeDBInstanceAttributeResponse planet=new DescribeDBInstanceAttributeResponse();
 		OperateXml opt=new OperateXml();
 		Map<String,String> c=opt.SelectOpt(DBInstanceId);//数据库url、用户名以及密码设置
-		//OperateScripts o=new OperateScripts();
-		//String result=o.CheckDB();
-		String result="up";
-		String status;
+		OperateScripts o=new OperateScripts();
+		String result=o.CheckDB();
 		if(result.equals("up")){
-			status="Running";
+			System.out.println("1");
 			String sql="select * from DBINSTANCE;";
 			Connection conn = null;
 			PreparedStatement stm = null;
@@ -49,14 +46,18 @@ public class DescribeDBInstanceAttribute {
 				dbinstance.DBInstanceClass=rs.getString("DBInstanceClass".toUpperCase());
 				dbinstance.DBInstanceNetType=rs.getString("DBInstanceType".toUpperCase());
 				dbinstance.PayType=rs.getString("PayType".toUpperCase());
-				dbinstance.CreationTime=rs.getString("CreationTime".toUpperCase());
-				dbinstance.SecurityIPList="10.11.1.81%2F0";
+				//dbinstance.CreationTime=rs.getString("CreationTime".toUpperCase());
+				dbinstance.CreationTime="2016-10-13T12%3A39%3A53Z";
+				dbinstance.SecurityIPList="0.0.0.0%2F0";
 				dbinstance.DBInstanceStorage=5;//Integer.valueOf(rs.getString("DBInstanceStorage".toUpperCase())).intValue();
-				dbinstance.Engine=rs.getString("Engine");
+				//dbinstance.Engine=rs.getString("Engine");
 				dbinstance.DBInstanceDescription=rs.getString("DBInstanceDescription".toUpperCase());
 				dbinstance.DBInstanceId=rs.getString("DBInstanceId".toUpperCase());
-				dbinstance.RegionId=rs.getString("RegionId".toUpperCase());
-				dbinstance.DBInstanceType=rs.getString("DBInstanceType");
+				//dbinstance.RegionId=rs.getString("RegionId".toUpperCase());
+				//dbinstance.DBInstanceType=rs.getString("DBInstanceType");
+				dbinstance.RegionId="c869a037-e819-4de7-86bb-8b1f35b2fe9a";
+				dbinstance.DBInstanceType="Primary";
+				dbinstance.Engine="NanDaTongYong";
 				dbinstances.add(dbinstance);
 				planet.setResponse(dbinstances);
 				
@@ -77,7 +78,7 @@ public class DescribeDBInstanceAttribute {
 			}
 			
 		}
-		planet.RequestId=result+c.get("DBInstanceDRV")+c+"0";
+		planet.RequestId="1E43AAE0-BEE8-43DA-860D-EAF2AA0724D1";
 		return planet;
 
 	}
@@ -110,6 +111,8 @@ class DBInstanceAttribute {
 	public int  DBMaxQuantity;
 	public String RegionId;
 	public String ZoneId;
+	
+	public DBInstanceAttribute(){}
 	
 	@XmlElement(name="ReadOnlyDBInstanceIds")
 	public ReadOnlyDBInstanceIds ReadOnlyDBInstanceId;

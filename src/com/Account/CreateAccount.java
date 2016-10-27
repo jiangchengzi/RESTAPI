@@ -11,7 +11,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.Dispatcher.OperateSql;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
-import com.Dispatcher.connsql;;
 public class CreateAccount {
 	public CreateAccountResponse response(String DBInstanceId,String AccountName,String AccountPassword,String AccountDescription){
 		CreateAccountResponse planet=new CreateAccountResponse();

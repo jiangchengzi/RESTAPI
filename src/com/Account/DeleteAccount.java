@@ -4,8 +4,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -13,7 +11,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.Dispatcher.OperateSql;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
-import com.Dispatcher.connsql;
 public class DeleteAccount {
 	public DeleteAccountResponse response(String DBInstanceId,String AccountName){
 		DeleteAccountResponse planet=new DeleteAccountResponse();
@@ -35,7 +32,6 @@ public class DeleteAccount {
 				rs = stm.executeQuery();
 				} catch (Exception e) {
 					e.printStackTrace();
-					System.out.println(sql);
 				} finally {
 					try {
 						if(rs!=null)rs.close();

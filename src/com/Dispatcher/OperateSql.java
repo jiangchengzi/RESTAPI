@@ -5,9 +5,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
 
 public class OperateSql {
@@ -24,8 +23,6 @@ public class OperateSql {
 				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
 				stm = conn.prepareStatement(sql);
 				rs = stm.executeQuery();
-
-				
 				while(rs.next())//获取到数据库的ID和NAME
 				{
 					dbinfos.put(rs.getString("DB_ID"), rs.getString("DB_NAME"));

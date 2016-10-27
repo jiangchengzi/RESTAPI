@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.Dispatcher.OperateSql;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
-import com.Dispatcher.connsql;
 //import com.kunlun.jdbc.Driver;
 
 	//import java.sql.Timestamp;
@@ -27,7 +26,6 @@ public class CreateDatabase{
 		public CreateDatabaseResponse response(String DBInstanceId,String DBName,String CharacterSetName,String DBDescription) {
 		    if(CharacterSetName==null){CharacterSetName="utf8";}
 		    	
-				OperateSql operateSql=new OperateSql();
 				
 				String sql = "CREATE database "+DBName+" CHARacter SET "+CharacterSetName+";";
 				    Connection conn = null;

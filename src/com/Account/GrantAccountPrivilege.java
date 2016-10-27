@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
-import com.Dispatcher.connsql;
+
 public class GrantAccountPrivilege {
 	public GrantAccountPrivilegeResponse response(String DBInstanceId,String AccountName,String DBName,String AccountPrivilege){
 		GrantAccountPrivilegeResponse planet=new GrantAccountPrivilegeResponse();

@@ -5,11 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -18,9 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.Dispatcher.OperateSql;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
-import com.Dispatcher.connsql;
 import com.database.DatabasePrivilege;
-import com.kunlun.jdbc.*;
 public class DescribeAccounts {
 	public DescribeAccountResponse response(String DBInstanceId,String AccountName){
 		DescribeAccountResponse planet=new DescribeAccountResponse();
@@ -86,7 +81,6 @@ public class DescribeAccounts {
 					
 				} catch (Exception e) {
 					e.printStackTrace();
-					System.out.println(accounts.get(0));
 				} finally {
 					try {
 						if(rs!=null)rs.close();
