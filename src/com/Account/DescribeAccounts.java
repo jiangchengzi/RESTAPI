@@ -27,7 +27,7 @@ public class DescribeAccounts {
 		for (Map.Entry<String, String> entry :dbinfos.entrySet())
 		{			 
 				String sql = null;
-				sql="select  DB_ID,DB_NAME,USER_ID,USER_NAME,AUTHORITY,LOCKED,EXPIRED from sys_users left join sys_acls on sys_users.USER_ID=sys_acls.GRANTEE_ID and sys_users.DB_ID=sys_acls.DB_ID left join all_databases on sys_users.DB_ID=all_databases.DB_ID where USER_ID>100  order by sys_users.USER_NAME;";
+				sql="select * from (select  sys_databases.DB_ID,sys_databases.DB_NAME,sys_users.USER_ID,sys_users.USER_NAME,sys_acls.AUTHORITY,LOCKED,EXPIRED from sys_databases  left join sys_users on sys_users.DB_ID=sys_databases.DB_ID and sys_users.USER_ID>100 left join sys_acls on sys_acls.GRANTEE_ID=sys_users.USER_ID  and sys_users.DB_ID=sys_acls.DB_ID  order by sys_users.USER_NAME,sys_acls.AUTHORITY desc) ;";
 				Connection conn = null;
 				PreparedStatement stm = null;
 				ResultSet rs = null;
@@ -48,7 +48,7 @@ public class DescribeAccounts {
 						dbinstanceaccount.AccountDescription=" ";
 						locked=rs.getString("LOCKED");
 						expired=rs.getString("EXPIRED");
-						if(locked.equals("F")&&expired.equals("F")){
+						if(locked!=null&&expired!=null&&locked.equals("F")&&expired.equals("F")){
 							dbinstanceaccount.AccountStatus="Available";
 						}
 						else{ dbinstanceaccount.AccountStatus="Unavailable";}
@@ -56,27 +56,49 @@ public class DescribeAccounts {
 						{
 							databaseprivilege.AccountPrivilege="ReadWrite";
 						}
-						else{
+						if(rs.getString("AUTHORITY")!=null&&rs.getString("AUTHORITY").equals("1"))
+						{
 							databaseprivilege.AccountPrivilege="ReadOnly";
+						}
+						if(rs.getString("AUTHORITY")==null)
+						{
+							databaseprivilege.AccountPrivilege=null;
 							
 						}
-						databaseprivilege.DBName=rs.getString("DB_NAME");
-						dbinstanceaccount.DatabasePrivilege.add(databaseprivilege);
-						accounts.add(dbinstanceaccount);						
+						if(rs.getString("DB_NAME").equals("SYSTEM")){
+							databaseprivilege.DBName=null;
+						}
+						if(!rs.getString("DB_NAME").equals("SYSTEM")){
+							databaseprivilege.DBName=rs.getString("DB_NAME");
+						}
+							dbinstanceaccount.DatabasePrivilege.add(databaseprivilege);
+						if(dbinstanceaccount.AccountName!=null){//查询语句以database为左表，则有可能存在用户为空的情况
+							accounts.add(dbinstanceaccount);
+						}
 						
 					}
-					for (int i=0;i<accounts.size()-1;i++){
+					for (int i=0;i<accounts.size()-1;i++){//一个dbinstanceaccount可以拥有多个databaseprivilege，为了实现这种设计
+						if(!accounts.get(i).DatabasePrivilege.isEmpty()){
+							if(accounts.get(i).DatabasePrivilege.get(0).AccountPrivilege==null){//把没有AccountPrivilege的删除
+								accounts.get(i).DatabasePrivilege.remove(0);
+							}
+						}
 						if(accounts.get(i).AccountName.equals(accounts.get(i+1).AccountName)){
-							accounts.get(i).DatabasePrivilege.add(accounts.get(i+1).DatabasePrivilege.get(0));
+							if(accounts.get(i+1).DatabasePrivilege.get(0).AccountPrivilege!=null){
+							accounts.get(i).DatabasePrivilege.add(accounts.get(i+1).DatabasePrivilege.get(0));//只有在相邻数据库名相同，且AccountPrivilege不为空时才去重
+							  for(int k=0;k<accounts.get(i).DatabasePrivilege.size()-1;k++){
+								  for(int j=k+1;j<accounts.get(i).DatabasePrivilege.size();j++)
+									  if(accounts.get(i).DatabasePrivilege.get(k).DBName.equals(accounts.get(i).DatabasePrivilege.get(j).DBName)){
+										  accounts.get(i).DatabasePrivilege.remove(j);
+									  }
+							  		}
+							}
 							accounts.remove(i+1);
 							i=i-1;
-							//i++;
+							continue;
+							}
 						}
-						//else{
-						//	planet.dbinstanceaccount.add(accounts.get(i));
-						//}
-						
-					}	
+							
 					planet.dbinstanceaccount=accounts;
 					
 				} catch (Exception e) {
@@ -103,7 +125,7 @@ public class DescribeAccounts {
 }
 
 @XmlRootElement(name="DescribeAccountsResponse")
-class DescribeAccountResponse extends PackageXml{
+class DescribeAccountResponse{
 	public String RequestId;
 	@XmlElementWrapper(name="Accounts")
 	@XmlElement(name="DBInstanceAccount")
@@ -112,7 +134,7 @@ class DescribeAccountResponse extends PackageXml{
 }
 
 @XmlRootElement(name="DBInstanceAccount")
-class DBInstanceAccount {
+class DBInstanceAccount extends PackageXml{
 	
 	public String AccountName;
 	public String DBInstanceId;

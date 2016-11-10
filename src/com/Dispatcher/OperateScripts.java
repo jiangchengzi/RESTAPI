@@ -62,4 +62,25 @@ public class OperateScripts {
 		
 		
 	}
+	public String  DeleteDB(){
+		String cmdstring="chmod 777 /root/delete.sh "; 
+		String result=new String();
+		try {
+		
+		Process proc;
+		proc=Runtime.getRuntime().exec(cmdstring);
+		proc.waitFor();
+		cmdstring="bash /root/delete.sh";//检查实例进程是否启动，如果没启动则启动之，如果启动了，返回“up”
+		Runtime.getRuntime().exec(cmdstring);
+		proc.waitFor();
+		
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		return result;
+		
+		
+		
+	}
 }

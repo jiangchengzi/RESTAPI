@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.Dispatcher.OperateSql;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
+
 public class revokeAccountPrivilege {
 	public revokeAccountPrivilegeResponse response(String DBInstanceId,String AccountName,String DBName){
 				revokeAccountPrivilegeResponse planet=new revokeAccountPrivilegeResponse();
@@ -20,20 +21,25 @@ public class revokeAccountPrivilege {
 				OperateXml opt=new OperateXml();
 				Map<String,String> c=opt.SelectOpt(DBInstanceId);
 				OperateSql operateSql=new OperateSql();
-				String AccountPrivilege=operateSql.SelectUserPrivilege(DBName, AccountName, DBInstanceId);
+				String AccountPrivilege=operateSql.SelectUserPrivilege(DBName,AccountName, DBInstanceId);
 				String sql;
-				if(AccountPrivilege.equals("ReadOnly")){
+				if(AccountPrivilege!=null&&AccountPrivilege.equals("ReadOnly")){
 					
 					sql="use "+DBName+";revoke SELECT ANY TABLE FROM "+AccountName;
 				}
-				else{
+				else if(AccountPrivilege!=null&&AccountPrivilege.equals("ReadWrite")){
 					sql="use "+DBName+";revoke DBA FROM "+AccountName;
 				}
+				else{
+					sql=null;
+				}
 				try{
-					Class.forName(c.get("DBInstanceDRV"));
-					conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
-				stm = conn.prepareStatement(sql);
-				rs = stm.executeQuery();
+					if(sql!=null){
+						Class.forName(c.get("DBInstanceDRV"));
+						conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
+						stm = conn.prepareStatement(sql);
+						rs = stm.executeQuery();
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {

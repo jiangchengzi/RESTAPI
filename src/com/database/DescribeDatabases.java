@@ -19,6 +19,7 @@ import javax.xml.bind.annotation.XmlType;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
 
+
 	//import java.sql.Timestamp;
 
 	/**
@@ -50,21 +51,15 @@ public class DescribeDatabases {
 									+ "from all_databases left join sys_users on all_databases.DB_ID=sys_users.DB_ID "
 									+ "left join sys_acls on all_databases.DB_ID=sys_acls.DB_ID and  sys_users.USER_ID=sys_acls.GRANTEE_ID "
 									+ "where sys_users.USER_ID>100 and all_databases.online='"+online+"' and all_databases.droped='"+droped+"'"+""
-											+ " and  all_databases.DB_NAME='"+ DBName.toUpperCase()+"';";
+											+ " and  all_databases.DB_NAME='"+ DBName+"';";
 						}
 					}
 					else{
 						if(DBName!=null){
-							sql = "select DB_ID,CHAR_SET,ONLINE,DROPED,COMMENTS,DB_NAME,USER_NAME,sys_users.USER_ID,AUTHORITY "
-									+ "from all_databases left join sys_users on all_databases.DB_ID=sys_users.DB_ID "
-									+ "left join sys_acls on all_databases.DB_ID=sys_acls.DB_ID and  sys_users.USER_ID=sys_acls.GRANTEE_ID "
-									+ "where sys_users.USER_ID>100 and  all_databases.DB_NAME='"+ DBName.toUpperCase()+"';";
+							sql = "select DB_ID,CHAR_SET,ONLINE,DROPED,COMMENTS,DB_NAME,USER_NAME,sys_users.USER_ID,AUTHORITY from all_databases left join sys_users on all_databases.DB_ID=sys_users.DB_ID left join sys_acls on all_databases.DB_ID=sys_acls.DB_ID and  sys_users.USER_ID=sys_acls.GRANTEE_ID where all_databases.DB_NAME='"+ DBName+"' order by all_databases.DB_NAME;";
 						}
 						else{
-							sql = "select DB_ID,CHAR_SET,ONLINE,DROPED,COMMENTS,DB_NAME,USER_NAME,sys_users.USER_ID,AUTHORITY "
-									+ "from all_databases left join sys_users on all_databases.DB_ID=sys_users.DB_ID "
-									+ "left join sys_acls on all_databases.DB_ID=sys_acls.DB_ID and  sys_users.USER_ID=sys_acls.GRANTEE_ID "
-									+ "where sys_users.USER_ID>100 ;";
+							sql = "select * from (select DB_ID,CHAR_SET,ONLINE,DROPED,COMMENTS,DB_NAME,USER_NAME,sys_users.USER_ID,AUTHORITY from all_databases left join sys_users on all_databases.DB_ID=sys_users.DB_ID and sys_users.USER_ID>100 and all_databases.DB_ID>10 left join sys_acls on sys_users.DB_ID=sys_acls.DB_ID and  sys_users.USER_ID=sys_acls.GRANTEE_ID order by all_databases.DB_NAME) as a where a.DB_NAME!='SYSTEM';";
 						}
 						}
 					
@@ -85,10 +80,10 @@ public class DescribeDatabases {
 							DataBase database=new DataBase();
 							List<AccountPrivilegeInfo> accountprivilegeinfos=new ArrayList<AccountPrivilegeInfo>();
 							AccountPrivilegeInfo accountprivilegeinfo=new AccountPrivilegeInfo();
-							database.DBName=rs.getString("db_name");
+							database.DBName=rs.getString("db_name").toLowerCase();
 							database.CharacterSetName=rs.getString("char_set");
 							database.DBDescription=rs.getString("comments");
-							database.Engine="KunLun";
+							database.Engine=c.get("DBInstanceENGINE");
 							if(rs.getString("ONLINE").equals("T")&&(rs.getString("DROPED").equals("F"))){dbstatus="Running";}
 							if(rs.getString("ONLINE").equals("F")&&(rs.getString("DROPED").equals("T"))){dbstatus="Deleting";}
 							if(rs.getString("ONLINE").equals("F")&&(rs.getString("DROPED").equals("F"))){dbstatus="Creating";}
@@ -99,24 +94,53 @@ public class DescribeDatabases {
 							{
 								accountprivilegeinfo.AccountPrivilege="ReadWrite";
 							}
-							else{
+							else if(rs.getString("AUTHORITY")!=null&&rs.getString("AUTHORITY").equals("1"))
+							{
 								accountprivilegeinfo.AccountPrivilege="ReadOnly";
 								
 							}
-							accountprivilegeinfos.add(accountprivilegeinfo);
+							else{
+								accountprivilegeinfo.AccountPrivilege=null;
+							}
+								accountprivilegeinfos.add(accountprivilegeinfo);
 							database.AccountPrivilegeInfo=accountprivilegeinfos;
 							databases.add(database);
 						
 						}
+						/*
 						for (int i=0;i<databases.size()-1;i++){
 							if(databases.get(i).DBName.equals(databases.get(i+1).DBName)){
 								databases.get(i).AccountPrivilegeInfo.add(databases.get(i+1).AccountPrivilegeInfo.get(0));
 								databases.remove(i+1);
 								i=i-1;
 							}
-						}	
-						planet.database=databases;
+						}
+						*/	
+						for (int i=0;i<databases.size()-1;i++){//一个dbinstanceaccount可以拥有多个databaseprivilege，为了实现这种设计
+							if(!databases.get(i).AccountPrivilegeInfo.isEmpty()){
+								if(databases.get(i).AccountPrivilegeInfo.get(0).AccountPrivilege==null){//把没有AccountPrivilege的删除
+									databases.get(i).AccountPrivilegeInfo.remove(0);
+								}
+							}
+							if(databases.get(i).DBName.equals(databases.get(i+1).DBName)){
+								if(databases.get(i+1).AccountPrivilegeInfo.get(0).AccountPrivilege!=null){
+									databases.get(i).AccountPrivilegeInfo.add(databases.get(i+1).AccountPrivilegeInfo.get(0));//只有在相邻数据库名相同，且AccountPrivilege不为空时才去重
+								  for(int k=0;k<databases.get(i).AccountPrivilegeInfo.size()-1;k++){
+									  for(int j=k+1;j<databases.get(i).AccountPrivilegeInfo.size();j++)
+										  if(databases.get(i).AccountPrivilegeInfo.get(k).Account.equals(databases.get(i).AccountPrivilegeInfo.get(j).Account)){
+											  databases.get(i).AccountPrivilegeInfo.remove(j);
+										  }
+								  		}
+								}
+								databases.remove(i+1);
+								i=i-1;
+								continue;
+								}
+							}
 						
+						
+						planet.database=databases;
+						planet.setDescribeDatabaseResponse("2603CA96-B17D-4903-BC04-61A2C829CD94", databases);
 					} catch (Exception e) {
 						e.printStackTrace();
 					} finally {
@@ -130,7 +154,7 @@ public class DescribeDatabases {
 					}
 					
 					
-				planet.setDescribeDatabaseResponse("2603CA96-B17D-4903-BC04-61A2C829CD94", databases);
+				
 				
 				return planet;
 

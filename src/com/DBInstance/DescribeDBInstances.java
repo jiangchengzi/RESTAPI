@@ -26,9 +26,8 @@ public class DescribeDBInstances {
 		List<DBInstance> dbinstances=new ArrayList<DBInstance>(); 
 		for(int i=0;i<DBInstances.size();i++){
 		Map<String,String> c=opt.SelectOpt(DBInstances.get(i));//数据库url、用户名以及密码设置
-		System.out.println(DBInstances.get(0)+c);
 		OperateScripts o=new OperateScripts();
-		String result=o.CheckDB();
+		String result=o.CheckDB();//需要改成远程的shell执行
 		String status;
 		if(result.equals("up")){
 			status="Running";
@@ -46,19 +45,19 @@ public class DescribeDBInstances {
 				
 				DBInstance dbinstance=new DBInstance();
 				ReadOnlyDBInstanceIds ReadOnlyDBInstanceId=new ReadOnlyDBInstanceIds();
-				dbinstance.DBInstanceDescription=rs.getString("DBInstanceDescription");
+				dbinstance.DBInstanceDescription=rs.getString("DBInstanceDescription").trim();
 				dbinstance.ExpireTime="2024-10-10T16:00:00Z";
-				dbinstance.DBInstanceId=rs.getString("DBInstanceId");
-				dbinstance.DBInstanceNetType=rs.getString("DBInstanceType");
-				dbinstance.PayType=rs.getString("PayType");
+				dbinstance.DBInstanceId=rs.getString("DBInstanceId").trim();
+				dbinstance.DBInstanceNetType=rs.getString("DBInstanceType").trim();
+				dbinstance.PayType=rs.getString("PayType").trim();
 				dbinstance.DBInstanceStatus=status;
-				dbinstance.DBInstanceType=rs.getString("DBInstanceType");
-				dbinstance.Engine=rs.getString("Engine");
+				dbinstance.DBInstanceType=rs.getString("DBInstanceType").trim();
+				dbinstance.Engine=rs.getString("Engine").trim();
 				dbinstance.LockMode="Unlock";
 				dbinstance.LockReason=null;
-				dbinstance.RegionId=rs.getString("RegionId");
-				dbinstance.ZoneId=rs.getString("ZoneId");
-				dbinstance.MasterInstanceId=rs.getString("DBInstanceId");
+				dbinstance.RegionId=rs.getString("RegionId").trim();
+				dbinstance.ZoneId=rs.getString("ZoneId").trim();
+				dbinstance.MasterInstanceId=rs.getString("DBInstanceId").trim();
 				ReadOnlyDBInstanceId.setReadOnlyDBInstanceIds(" ");
 				dbinstance.ReadOnlyDBInstanceId=ReadOnlyDBInstanceId;
 				dbinstances.add(dbinstance);
@@ -89,7 +88,7 @@ public class DescribeDBInstances {
 	}
 }
 @XmlRootElement(name="DescribeDBInstancesResponse")
-class DescribeDBInstancesResponse extends PackageXml{
+class DescribeDBInstancesResponse{
 	public int PageRecordCount;
 	
 	@XmlElementWrapper(name="Items")
@@ -109,7 +108,7 @@ class DescribeDBInstancesResponse extends PackageXml{
 }
 
 @XmlRootElement
-class DBInstance {
+class DBInstance extends PackageXml{
 	public String DBInstanceDescription;
 	public String ExpireTime;
 	public String DBInstanceId;

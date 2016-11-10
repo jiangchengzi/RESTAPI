@@ -13,8 +13,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.Dispatcher.OperateScripts;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
+
 public class RestartDBInstance {
-	public PackageXml response(){
+	public RestartDBInstanceResponse response(){
 		
 		OperateXml opt=new OperateXml();
 		Map<String,String> c=opt.SelectOpt("kunlun");//数据库url、用户名以及密码设置

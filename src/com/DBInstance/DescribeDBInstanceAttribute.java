@@ -24,7 +24,6 @@ public class DescribeDBInstanceAttribute {
 		OperateScripts o=new OperateScripts();
 		String result=o.CheckDB();
 		if(result.equals("up")){
-			System.out.println("1");
 			String sql="select * from DBINSTANCE;";
 			Connection conn = null;
 			PreparedStatement stm = null;
@@ -35,29 +34,29 @@ public class DescribeDBInstanceAttribute {
 				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
 				stm = conn.prepareStatement(sql);
 				rs = stm.executeQuery();
-				if(rs.next()){
+				if(rs.last()){
 				List<DBInstanceAttribute> dbinstances=new ArrayList<DBInstanceAttribute>(); 
 				DBInstanceAttribute dbinstance=new DBInstanceAttribute();
 				ReadOnlyDBInstanceIds ReadOnlyDBInstanceId=new ReadOnlyDBInstanceIds();
 				ReadOnlyDBInstanceId.setReadOnlyDBInstanceIds(" ");
-				planet.RequestId="3C5CFDEE-F774-4DED-89A2-1D76EC63C575";
-				dbinstance.EngineVersion=rs.getString("EngineVersion".toUpperCase());
-				dbinstance.ZoneId=rs.getString("ZoneId".toUpperCase());
-				dbinstance.DBInstanceClass=rs.getString("DBInstanceClass".toUpperCase());
-				dbinstance.DBInstanceNetType=rs.getString("DBInstanceType".toUpperCase());
-				dbinstance.PayType=rs.getString("PayType".toUpperCase());
-				//dbinstance.CreationTime=rs.getString("CreationTime".toUpperCase());
-				dbinstance.CreationTime="2016-10-13T12%3A39%3A53Z";
-				dbinstance.SecurityIPList="0.0.0.0%2F0";
-				dbinstance.DBInstanceStorage=5;//Integer.valueOf(rs.getString("DBInstanceStorage".toUpperCase())).intValue();
-				//dbinstance.Engine=rs.getString("Engine");
-				dbinstance.DBInstanceDescription=rs.getString("DBInstanceDescription".toUpperCase());
-				dbinstance.DBInstanceId=rs.getString("DBInstanceId".toUpperCase());
-				//dbinstance.RegionId=rs.getString("RegionId".toUpperCase());
-				//dbinstance.DBInstanceType=rs.getString("DBInstanceType");
-				dbinstance.RegionId="c869a037-e819-4de7-86bb-8b1f35b2fe9a";
+				planet.RequestId="3C5CFDEE-F774-4DED-89A2-1D76EC63C575".trim();
+				dbinstance.EngineVersion=rs.getString("EngineVersion".toUpperCase()).trim();
+				dbinstance.ZoneId=rs.getString("ZoneId".toUpperCase()).trim();
+				dbinstance.DBInstanceClass=rs.getString("DBInstanceClass".toUpperCase()).trim();
+				dbinstance.DBInstanceNetType=rs.getString("DBInstanceType".toUpperCase()).trim();
+				dbinstance.PayType=rs.getString("PayType".toUpperCase()).trim();
+				dbinstance.CreationTime=rs.getString("CreationTime".toUpperCase()).trim();
+				dbinstance.SecurityIPList="0.0.0.0%2F0".trim();
+				dbinstance.DBInstanceStorage=Integer.valueOf(rs.getString("DBInstanceStorage".toUpperCase()).trim()).intValue();
+				dbinstance.Engine=rs.getString("Engine").trim();
+				dbinstance.DBInstanceDescription=rs.getString("DBInstanceDescription".toUpperCase()).trim();
+				dbinstance.DBInstanceId=rs.getString("DBInstanceId").trim();
+				dbinstance.RegionId=rs.getString("RegionId".toUpperCase()).trim();
 				dbinstance.DBInstanceType="Primary";
-				dbinstance.Engine="NanDaTongYong";
+				dbinstance.DBInstanceStatus="Running";
+				dbinstance.MaxConnections=1000;
+				dbinstance.ConnectionString=c.get("DBInstanceIP");
+				dbinstance.Port=Integer.valueOf(c.get("DBInstancePORT").trim()).intValue();;
 				dbinstances.add(dbinstance);
 				planet.setResponse(dbinstances);
 				
@@ -78,13 +77,13 @@ public class DescribeDBInstanceAttribute {
 			}
 			
 		}
-		planet.RequestId="1E43AAE0-BEE8-43DA-860D-EAF2AA0724D1";
+		planet.RequestId="1E43AAE0-BEE8-43DA-860D-EAF2AA0724D1"+result;
 		return planet;
 
 	}
 }
 @XmlRootElement(name="DescribeDBInstanceAttributeResponse")
-class DescribeDBInstanceAttributeResponse extends PackageXml{
+class DescribeDBInstanceAttributeResponse{
 			public String RequestId;
 			
 			@XmlElementWrapper(name="Items")
@@ -98,7 +97,7 @@ class DescribeDBInstanceAttributeResponse extends PackageXml{
 	
 }
 @XmlRootElement
-class DBInstanceAttribute {
+class DBInstanceAttribute extends PackageXml{
 	public String LockMode;
 	public String ConnectionString;
 	public String CreationTime;

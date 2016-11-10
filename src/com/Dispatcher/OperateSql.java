@@ -5,8 +5,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.List;
 import java.util.Map;
 
 public class OperateSql {
@@ -39,6 +40,37 @@ public class OperateSql {
 				}
 			}
 				return dbinfos;
+				
+			}
+		public List<String> NotSysDb(String DBInstanceId){//返回数据库ID：NAME键值对
+			String sql="select * from sys_databases where DB_ID>1;";
+			Connection conn = null;
+			PreparedStatement stm = null;
+			ResultSet rs = null;
+			OperateXml opt=new OperateXml();
+			Map<String,String> c=opt.SelectOpt(DBInstanceId);
+			List<String> dbtables=new ArrayList<String>();
+			try{
+				Class.forName(c.get("DBInstanceDRV"));
+				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
+				stm = conn.prepareStatement(sql);
+				rs = stm.executeQuery();
+				while(rs.next())//获取到数据库的ID和NAME
+				{
+					dbtables.add(rs.getString("DB_NAME"));
+				}
+			}catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if(rs!=null)rs.close();
+					if(stm!=null) stm.close();
+					if(conn!=null) conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+				return dbtables;
 				
 			}
 		public Map<String,String> SysUsers(String DBInstanceId){//返回用户ID：NAME键值对
@@ -74,9 +106,42 @@ public class OperateSql {
 				return userinfos;
 				
 			}
+		public List<String> NotSysUsers(String DBInstanceId){//返回非系统用户
+			String sql="select * from sys_users where USER_ID>100;";
+			Connection conn = null;
+			PreparedStatement stm = null;
+			ResultSet rs = null;
+			OperateXml opt=new OperateXml();
+			Map<String,String> c=opt.SelectOpt(DBInstanceId);
+			List<String> username=new ArrayList<String>();
+			try{
+				Class.forName(c.get("DBInstanceDRV"));
+				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
+				stm = conn.prepareStatement(sql);
+				rs = stm.executeQuery();
+
+				
+				while(rs.next())//获取到数据库的ID和NAME
+				{
+					username.add(rs.getString("USER_NAME"));
+				}
+			}catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if(rs!=null)rs.close();
+					if(stm!=null) stm.close();
+					if(conn!=null) conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+				return username;
+				
+			}
 		public void InsertUser(String AccountName,String DBInstanceId,String UserStatus,String AccountDescription,String AccountPassword){
-			String sql="INSERT INTO USERS VALUES("
-					+"'"+AccountName+"'"+",'"+DBInstanceId+"','"+UserStatus+"','"+AccountDescription+"','"+AccountPassword+"');";
+			String sql="INSERT INTO USERS VALUES('"
+					+AccountName+"','"+DBInstanceId+"','"+UserStatus+"','"+AccountDescription+"','"+AccountPassword+"');";
 			Connection conn = null;
 			PreparedStatement stm = null;
 			ResultSet rs = null;
@@ -102,24 +167,18 @@ public class OperateSql {
 			
 			
 		}
-		public String SelectUserId(String UserName,String DBInstanceId){
-			String sql="select * from sys_users where USER_NAME='"+UserName+"';";
+		public void ResetUser(String AccountName,String DBInstanceId,String AccountPassword){
+			String sql="UPDATE USERS SET USER_PASSWORD='"+AccountPassword+"' WHERE USER_NAME='"+AccountName+"';";
 			Connection conn = null;
 			PreparedStatement stm = null;
 			ResultSet rs = null;
 			OperateXml opt=new OperateXml();
 			Map<String,String> c=opt.SelectOpt(DBInstanceId);
-			String userid = null;
 			try{
 				Class.forName(c.get("DBInstanceDRV"));
 				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
 				stm = conn.prepareStatement(sql);
 				rs = stm.executeQuery();
-				if(rs.next()){
-					
-					userid=rs.getString("USER_ID");
-					
-				}
 			}catch (Exception e) {
 				e.printStackTrace();
 			} finally {
@@ -133,29 +192,20 @@ public class OperateSql {
 			}
 			
 			
-			return userid;
-			
-			
 			
 		}
-		public String SelectUserName(String UserId,String DBInstanceId){
-			String sql="select * from sys_users where USER_ID='"+UserId+"';";
+		public void DropUser(String AccountName,String DBInstanceId){
+			String sql="DELETE FROM USERS WHERE USER_NAME='"+AccountName+"';";
 			Connection conn = null;
 			PreparedStatement stm = null;
 			ResultSet rs = null;
 			OperateXml opt=new OperateXml();
 			Map<String,String> c=opt.SelectOpt(DBInstanceId);
-			String username = null;
 			try{
 				Class.forName(c.get("DBInstanceDRV"));
 				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
 				stm = conn.prepareStatement(sql);
 				rs = stm.executeQuery();
-				if(rs.next()){
-					
-					username=rs.getString("USER_NAME");
-					
-				}
 			}catch (Exception e) {
 				e.printStackTrace();
 			} finally {
@@ -169,51 +219,15 @@ public class OperateSql {
 			}
 			
 			
-			return username;
-			
-			
 			
 		}
-		public String SelectDbId(String DbName,String DBInstanceId){//根据数据库名称返回数据库ID
-			String sql="select * from sys_databases where DB_NAME='"+DbName+"';";
-			Connection conn = null;
-			PreparedStatement stm = null;
-			ResultSet rs = null;
-			OperateXml opt=new OperateXml();
-			Map<String,String> c=opt.SelectOpt(DBInstanceId);
-			String dbid = null;
-			try{
-				Class.forName(c.get("DBInstanceDRV"));
-				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
-				stm = conn.prepareStatement(sql);
-				rs = stm.executeQuery();
-				if(rs.next()){
-					
-					dbid=rs.getString("USER_ID");
-					
-				}
-			}catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				try {
-					if(rs!=null)rs.close();
-					if(stm!=null) stm.close();
-					if(conn!=null) conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			
-			return dbid;
-			
-			
-			
-		}
+		
+		
+		
 		public String SelectUserPrivilege(String DBName,String UserName,String DBInstanceId){//根据数据库ID、用户ID来获取用户权限
 			String UserPrivilege=null;
 			//DB_ID | GRANTOR_ID | GRANTEE_ID | OBJECT_ID | OBJECT_TYPE | AUTHORITY  | REGRANT | ORG_GRANTOR_ID | IS_SYS
-			String sql="select USER_NAME,AUTHORITY from sys_users left join sys_acls on sys_acls.GRANTEE_ID=sys_users.USER_ID left join sys_databases on sys_users.DB_ID=sys_databases.DB_ID where sys_users.USER_NAME='"+UserName.toUpperCase()+"' and sys_databases.DB_NAME='"+DBName.toUpperCase()+"';";
+			String sql="select USER_NAME,AUTHORITY from all_databases join sys_users on all_databases.DB_ID=sys_users.DB_ID and sys_users.USER_ID>100 and all_databases.DB_NAME='"+DBName+"' and sys_users.USER_NAME='"+UserName+"' join sys_acls on sys_users.USER_ID=sys_acls.GRANTEE_ID and sys_acls.DB_ID=all_databases.DB_ID order by sys_acls.AUTHORITY desc;";
 			Connection conn = null;
 			PreparedStatement stm = null;
 			ResultSet rs = null;
@@ -228,17 +242,21 @@ public class OperateSql {
 				if(rs.next()){
 					
 					authority=rs.getString("AUTHORITY");
-					if (authority.equals("8388607")){
+					
+					if (authority!=null&&authority.equals("8388607")){
 						UserPrivilege="ReadWrite";
 					}
-					else{
+					else if (authority!=null&&authority.equals("1")){
 						UserPrivilege="ReadOnly";
+					}
+					else{
+						UserPrivilege=null;
 					}
 				}
 				
 			}catch (Exception e) {
 				e.printStackTrace();
-				System.out.println(sql);
+				//System.out.println(sql);
 			} finally {
 				try {
 					if(rs!=null)rs.close();
@@ -250,91 +268,6 @@ public class OperateSql {
 			}
 			
 			return UserPrivilege;
-		}
-		public Map<String,String> DbPrivileges(String UserId,String DBInstanceId){//根据用户ID来返回数据库：权限键值对
-			Map<String,String> UserPs=new HashMap<String,String>();
-			String sql="select DB_ID,AUTHORITY from sys_acls where GRANTEE_ID='"+UserId+"';";
-			Connection conn = null;
-			PreparedStatement stm = null;
-			ResultSet rs = null;
-			OperateXml opt=new OperateXml();
-			Map<String,String> c=opt.SelectOpt(DBInstanceId);
-			String authority = null;
-			String UserPrivilege=null;
-			try{
-				Class.forName(c.get("DBInstanceDRV"));
-				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
-				stm = conn.prepareStatement(sql);
-				rs = stm.executeQuery();
-				if(rs.next()){
-					authority=rs.getString("AUTHORITY");
-					if (authority.equals("8388607")){
-						UserPrivilege="ReadWrite";
-					}
-					else{
-						UserPrivilege="ReadOnly";
-					}
-					UserPs.put(rs.getString("DB_ID"), UserPrivilege);
-				}
-				
-			}catch (Exception e) {
-				e.printStackTrace();
-			} finally {
-				try {
-					if(rs!=null)rs.close();
-					if(stm!=null) stm.close();
-					if(conn!=null) conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			
-			
-			return UserPs;
-		}
-		public Map<String,String> UserPrivileges(String DBName,String DBInstanceId){//根据数据库ID来返回用户ID：权限键值对
-			Map<String,String> UserPs=new HashMap<String,String>();
-			String sql="select USER_NAME,AUTHORITY from sys_users left join sys_acls on sys_acls.GRANTEE_ID=sys_users.USER_ID left join sys_databases on sys_users.DB_ID=sys_databases.DB_ID where sys_databases.DB_NAME='"+DBName+"';";
-			Connection conn = null;
-			PreparedStatement stm = null; 
-			ResultSet rs = null;
-			OperateXml opt=new OperateXml();
-			Map<String,String> c=opt.SelectOpt(DBInstanceId);
-			String authority = null;
-			String UserPrivilege=null;
-			try{
-				Class.forName(c.get("DBInstanceDRV"));
-				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
-				stm = conn.prepareStatement(sql);
-				rs = stm.executeQuery();
-				while(rs.next()){
-					authority=rs.getString("AUTHORITY");
-					if (authority.equals("8388607")){
-						UserPrivilege="ReadWrite";
-					}
-					else{
-						UserPrivilege="ReadOnly";
-					}
-					UserPs.put(rs.getString("GRANTEE_ID"), UserPrivilege);
-				}
-				
-			}catch (Exception e) {
-				e.printStackTrace();
-				System.out.println("zaizheer"+sql+UserPrivilege);
-			} finally {
-				try {
-					if(rs!=null)rs.close();
-					if(stm!=null) stm.close();
-					if(conn!=null) conn.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
-			
-			
-			
-			return UserPs;
 		}
 		public void SynDbUsers(String DBName,String DBInstanceId){
 			String sql="select * from USERS;";
@@ -361,12 +294,10 @@ public class OperateSql {
 				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
 				int i=0;
 				for(Map.Entry<String, String> createusers:users.entrySet()){
-					sqlusers[i]="USE "+DBName+";CREATE USER "+createusers.getKey()+" IDENTIFIED BY '"+ createusers.getValue()+"';";
+					sqlusers[i]="USE "+DBName+";CREATE USER \""+createusers.getKey()+"\" IDENTIFIED BY '"+ createusers.getValue().trim()+"';";
 					stm = conn.prepareStatement(sqlusers[i]);
 					rs = stm.executeQuery();
 					i++;
-					
-					
 				}
 			}catch (Exception e) {
 				e.printStackTrace();
@@ -386,8 +317,129 @@ public class OperateSql {
 			
 			
 		}
+		public void DropDB(List<String> DBName,String DBInstanceId){
+			for(int i=0;i<DBName.size();i++)
+			{
+			String sql="drop database "+DBName.get(i)+";";
+			Connection conn = null;
+			PreparedStatement stm = null;
+			ResultSet rs = null;
+			OperateXml opt=new OperateXml();
+			Map<String,String> c=opt.SelectOpt(DBInstanceId);
+			try{
+				Class.forName(c.get("DBInstanceDRV"));
+				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
+				stm = conn.prepareStatement(sql);
+				rs = stm.executeQuery();
+			}catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if(rs!=null)rs.close();
+					if(stm!=null) stm.close();
+					if(conn!=null) conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			
+			
+		}
+		}
+		public void DropAllUsers(List<String> AllUsers,String DBInstanceId){
+			for(int i=0;i<AllUsers.size();i++)
+			{
+			String sql="DROP USER "+AllUsers.get(i)+";";
+			Connection conn = null;
+			PreparedStatement stm = null;
+			ResultSet rs = null;
+			OperateXml opt=new OperateXml();
+			Map<String,String> c=opt.SelectOpt(DBInstanceId);
+			try{
+				Class.forName(c.get("DBInstanceDRV"));
+				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
+				stm = conn.prepareStatement(sql);
+				rs = stm.executeQuery();
+			}catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if(rs!=null)rs.close();
+					if(stm!=null) stm.close();
+					if(conn!=null) conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			
+			
+		}
+		
+		}
+		public List<String> SysTables(String DBInstanceId){//返回系统库中创建的表
+			String sql="select * from all_tables";
+			Connection conn = null;
+			PreparedStatement stm = null;
+			ResultSet rs = null;
+			OperateXml opt=new OperateXml();
+			Map<String,String> c=opt.SelectOpt(DBInstanceId);
+			List<String> tablename=new ArrayList<String>();
+			try{
+				Class.forName(c.get("DBInstanceDRV"));
+				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
+				stm = conn.prepareStatement(sql);
+				rs = stm.executeQuery();
 
-		
-		
+				
+				while(rs.next())//获取到数据库的ID和NAME
+				{
+					tablename.add(rs.getString("TABLE_NAME"));
+				}
+			}catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if(rs!=null)rs.close();
+					if(stm!=null) stm.close();
+					if(conn!=null) conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+				return tablename;
+				
+			}
+		public void DropSysTables(List<String> SysTables,String DBInstanceId){
+			for(int i=0;i<SysTables.size();i++)
+			{
+			String sql="drop table "+SysTables.get(i)+";";
+			Connection conn = null;
+			PreparedStatement stm = null;
+			ResultSet rs = null;
+			OperateXml opt=new OperateXml();
+			Map<String,String> c=opt.SelectOpt(DBInstanceId);
+			try{
+				Class.forName(c.get("DBInstanceDRV"));
+				conn = DriverManager.getConnection(c.get("DBInstanceURL"), c.get("DBInstanceUSER"), c.get("DBInstancePWD"));
+				stm = conn.prepareStatement(sql);
+				rs = stm.executeQuery();
+			}catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if(rs!=null)rs.close();
+					if(stm!=null) stm.close();
+					if(conn!=null) conn.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			
+			
+		}
+		}
 }
 

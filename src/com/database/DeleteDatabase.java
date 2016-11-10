@@ -12,10 +12,11 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
+
 public class DeleteDatabase {
 	public DeleteDatabaseResponse response(String DBInstanceId,String DBName)
 	{
-		 String sql = "drop database "+DBName+";";
+		 String sql = "drop database \""+DBName+"\";";
 				 	Connection conn = null;
 					PreparedStatement stm = null;
 					ResultSet rs = null;

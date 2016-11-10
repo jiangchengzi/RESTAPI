@@ -5,12 +5,15 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+
+import com.Dispatcher.PackageXml;
 
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD) 
-public class DataBase {
+public class DataBase extends PackageXml {
 	@XmlElement
 	public String Engine;
 	public String DBName;
@@ -19,7 +22,8 @@ public class DataBase {
 	public String DBDescription;
 	public String DBInstanceId;
 	
-	@XmlElement(name="Accounts")
+	@XmlElementWrapper(name="Accounts")
+	@XmlElement(name="AccountPrivilegeInfo")
 	public List<AccountPrivilegeInfo> AccountPrivilegeInfo;
 	
 }

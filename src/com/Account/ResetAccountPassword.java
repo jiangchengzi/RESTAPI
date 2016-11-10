@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.Dispatcher.OperateSql;
 import com.Dispatcher.OperateXml;
 import com.Dispatcher.PackageXml;
+
 public class ResetAccountPassword {
    public ResetAccountPasswordResponse response(String DBInstanceId,String AccountName,String AccountPassword){
 	   ResetAccountPasswordResponse planet=new ResetAccountPasswordResponse();
@@ -42,7 +43,7 @@ public class ResetAccountPassword {
 					}
 				}
 		}
-		
+		finddb.ResetUser(AccountName, DBInstanceId, AccountPassword);
 	   planet.RequestId="1E43AAE0-BEE8-43DA-860D-EAF2AA0724DC";
 	   
 	   return planet;
